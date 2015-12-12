@@ -1,6 +1,7 @@
 import hashlib
 import itertools
 import re
+import json
 
 
 #===============================================================================
@@ -397,6 +398,23 @@ def day_11(s):
 
 
 #===============================================================================
+# DAY 12
+
+def day_12(s):
+
+    printer.row(sum(map(int, re.findall('-?\d+', s))))
+
+    def recur(c):
+        if isinstance(c, list):
+            return sum((recur(i) for i in c))
+        elif isinstance(c, dict):
+            return 0 if "red" in c.values() else sum((recur(c[k]) for k in c))
+        return c if isinstance(c, int) else 0
+
+    printer.row(recur(json.loads(s)))
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -412,3 +430,4 @@ solver("input/8.txt", day_8)
 solver("input/9.txt", day_9)
 solver("input/10.txt", day_10)
 solver("input/11.txt", day_11)
+solver("input/12.txt", day_12)
