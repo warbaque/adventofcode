@@ -415,6 +415,49 @@ def day_12(s):
 
 
 #===============================================================================
+# DAY 13
+
+def day_13(s):
+
+    r = re.compile('(\S+) would (gain|lose) (\d+) happiness units by sitting next to (\S+).')
+
+    preferences = s.strip().split("\n")
+    happiness   = {}
+
+    for pref in preferences:
+        m = r.match(pref)
+
+        u = m.group(1)
+        v = m.group(4)
+        dif = (1 if m.group(2) == 'gain' else -1) * int(m.group(3))
+
+        if not u in happiness:
+            happiness[u] = {}
+        happiness[u][v] = dif
+
+    def max_happiness():
+        max_happiness = float("-inf")
+        for p in itertools.permutations(happiness.keys()[1:]):
+
+            p = (happiness.keys()[0],) + p
+            happy = sum((happiness[k][p[i-1]] + happiness[k][p[i-len(p)+1]]
+                for i, k in enumerate(p)))
+            max_happiness = max(max_happiness, happy)
+
+        return max_happiness
+
+    printer.row(max_happiness())
+
+    happiness['me'] = {}
+    for u in happiness:
+        if u == 'me': continue
+        happiness[u]['me'] = 0
+        happiness['me'][u] = 0
+
+    printer.row(max_happiness())
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -431,3 +474,4 @@ solver("input/9.txt", day_9)
 solver("input/10.txt", day_10)
 solver("input/11.txt", day_11)
 solver("input/12.txt", day_12)
+solver("input/13.txt", day_13)
