@@ -458,6 +458,35 @@ def day_13(s):
 
 
 #===============================================================================
+# DAY 14
+
+def day_14(s):
+
+    t_total = 2503
+    r = re.compile('\S+ can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds.')
+    SPEED, T_FLYING, T_RESTING, DIST, POINTS = range(5)
+
+    reindeer_stats = s.strip().split("\n")
+    reindeers = [list(map(int, r.match(reindeer).groups())) + [0, 0] for reindeer in reindeer_stats]
+
+    max_dist   = 0
+    max_points = 0
+
+    for t in range(t_total):
+        for reindeer in reindeers:
+            is_flying = t % (reindeer[T_FLYING] + reindeer[T_RESTING]) < reindeer[T_FLYING]
+            if is_flying:
+                reindeer[DIST] += reindeer[SPEED]
+                max_dist = max(reindeer[DIST], max_dist)
+        for reindeer in reindeers:
+            if reindeer[DIST] == max_dist:
+                reindeer[POINTS] += 1
+                max_points = max(reindeer[POINTS], max_points)
+
+    printer.row(max_dist)
+    printer.row(max_points)
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -475,3 +504,4 @@ solver("input/10.txt", day_10)
 solver("input/11.txt", day_11)
 solver("input/12.txt", day_12)
 solver("input/13.txt", day_13)
+solver("input/14.txt", day_14)
