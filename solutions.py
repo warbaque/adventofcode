@@ -107,12 +107,12 @@ def day_4(s):
     s = s.strip()
 
     i = 0
-    while(not hashlib.md5(s+str(i)).hexdigest().startswith("00000")):
+    while(not hashlib.md5((s+str(i)).encode()).hexdigest().startswith("00000")):
         i += 1
     printer.row(i)
 
     if DISABLE_TOO_SLOW: return
-    while(not hashlib.md5(s+str(i)).hexdigest().startswith("000000")):
+    while(not hashlib.md5((s+str(i)).encode()).hexdigest().startswith("000000")):
         i += 1
     printer.row(i)
 
@@ -172,7 +172,7 @@ def day_5(s):
 def day_6(s):
 
     cmds = s.strip().split("\n")
-    prog = re.compile('(.*) (\d+),(\d+) through (\d+),(\d+)')
+    prog = re.compile(r'(.*) (\d+),(\d+) through (\d+),(\d+)')
 
     array_1 = [[False for _ in range(1000)] for _ in range(1000)]
     array_2 = [[0 for _ in range(1000)] for _ in range(1000)]
@@ -230,11 +230,11 @@ def day_7(s):
         return circuit_get(i) >> int(shift)
 
     regex = [
-        (gate_not,    re.compile('NOT (\S+)')),
-        (gate_and,    re.compile('(\S+) AND (\S+)')),
-        (gate_or,     re.compile('(\S+) OR (\S+)')),
-        (gate_lshift, re.compile('(\S+) LSHIFT (\d+)')),
-        (gate_rshift, re.compile('(\S+) RSHIFT (\d+)'))
+        (gate_not,    re.compile(r'NOT (\S+)')),
+        (gate_and,    re.compile(r'(\S+) AND (\S+)')),
+        (gate_or,     re.compile(r'(\S+) OR (\S+)')),
+        (gate_lshift, re.compile(r'(\S+) LSHIFT (\d+)')),
+        (gate_rshift, re.compile(r'(\S+) RSHIFT (\d+)'))
     ]
 
     def circuit_get(wire):
@@ -297,7 +297,7 @@ def day_8(s):
 
 def day_9(s):
 
-    r = re.compile('(\S+) to (\S+) = (\d+)')
+    r = re.compile(r'(\S+) to (\S+) = (\d+)')
 
     distances = s.strip().split("\n")
     adj = {}
@@ -402,7 +402,7 @@ def day_11(s):
 
 def day_12(s):
 
-    printer.row(sum(map(int, re.findall('-?\d+', s))))
+    printer.row(sum(map(int, re.findall(r'-?\d+', s))))
 
     def recur(c):
         if isinstance(c, list):
@@ -419,7 +419,7 @@ def day_12(s):
 
 def day_13(s):
 
-    r = re.compile('(\S+) would (gain|lose) (\d+) happiness units by sitting next to (\S+).')
+    r = re.compile(r'(\S+) would (gain|lose) (\d+) happiness units by sitting next to (\S+).')
 
     preferences = s.strip().split("\n")
     happiness   = {}
@@ -429,17 +429,18 @@ def day_13(s):
 
         u = m.group(1)
         v = m.group(4)
-        dif = (1 if m.group(2) == 'gain' else -1) * int(m.group(3))
+        diff = (1 if m.group(2) == 'gain' else -1) * int(m.group(3))
 
         if not u in happiness:
             happiness[u] = {}
-        happiness[u][v] = dif
+        happiness[u][v] = diff
 
     def max_happiness():
-        max_happiness = float("-inf")
-        for p in itertools.permutations(happiness.keys()[1:]):
 
-            p = (happiness.keys()[0],) + p
+        max_happiness = float("-inf")
+        for p in itertools.permutations(list(happiness.keys())[1:]):
+
+            p = (list(happiness.keys())[0],) + p
             happy = sum((happiness[k][p[i-1]] + happiness[k][p[i-len(p)+1]]
                 for i, k in enumerate(p)))
             max_happiness = max(max_happiness, happy)
@@ -463,7 +464,7 @@ def day_13(s):
 def day_14(s):
 
     t_total = 2503
-    r = re.compile('\S+ can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds.')
+    r = re.compile(r'\S+ can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds.')
     SPEED, T_FLYING, T_RESTING, DIST, POINTS = range(5)
 
     reindeer_stats = s.strip().split("\n")
@@ -494,7 +495,7 @@ def day_15(s):
 
     spoons = 100
     ingredient_specs = s.strip().split("\n")
-    ingredients = [list(map(int, re.findall('-?\d+', i))) for i in ingredient_specs]
+    ingredients = [list(map(int, re.findall(r'-?\d+', i))) for i in ingredient_specs]
 
     def partitions(n, k):
         for c in itertools.combinations(range(n+k-1), k-1):
@@ -505,8 +506,8 @@ def day_15(s):
 
     for p in partitions(spoons, len(ingredients)):
 
-        z = zip(*([p[i] * prop for prop in ingredients[i]] for i in range(len(ingredients))))
-        sums = [sum(x) for x in z]
+        g = ([p[i] * prop for prop in ingredients[i]] for i in range(len(ingredients)))
+        sums = [sum(x) for x in zip(*g)]
 
         total = 1
         for s in sums[:-1]:
