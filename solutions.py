@@ -486,6 +486,40 @@ def day_14(s):
     printer.row(max_dist)
     printer.row(max_points)
 
+
+#===============================================================================
+# DAY 15
+
+def day_15(s):
+
+    spoons = 100
+    ingredient_specs = s.strip().split("\n")
+    ingredients = [list(map(int, re.findall('-?\d+', i))) for i in ingredient_specs]
+
+    def partitions(n, k):
+        for c in itertools.combinations(range(n+k-1), k-1):
+            yield [b-a-1 for a, b in zip((-1,)+c, c+(n+k-1,))]
+
+    max_total = 0
+    max_total_500 = 0
+
+    for p in partitions(spoons, len(ingredients)):
+
+        z = zip(*([p[i] * prop for prop in ingredients[i]] for i in range(len(ingredients))))
+        sums = [sum(x) for x in z]
+
+        total = 1
+        for s in sums[:-1]:
+            total *= max(s, 0)
+
+        max_total = max(total, max_total)
+        if sums[-1] == 500:
+            max_total_500 = max(total, max_total_500)
+
+    printer.row(max_total)
+    printer.row(max_total_500)
+
+
 #===============================================================================
 
 DISABLE_TOO_SLOW = False
@@ -505,3 +539,4 @@ solver("input/11.txt", day_11)
 solver("input/12.txt", day_12)
 solver("input/13.txt", day_13)
 solver("input/14.txt", day_14)
+solver("input/15.txt", day_15)
