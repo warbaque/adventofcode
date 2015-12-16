@@ -522,6 +522,59 @@ def day_15(s):
 
 
 #===============================================================================
+# DAY 16
+
+def day_16(s):
+
+    sue = {
+        'children': 3,
+        'cats': 7,
+        'samoyeds': 2,
+        'pomeranians': 3,
+        'akitas': 0,
+        'vizslas': 0,
+        'goldfish': 5,
+        'trees': 3,
+        'cars': 2,
+        'perfumes': 1
+        }
+
+    r1 = re.compile(r'Sue (\d+): (.*)')
+    r2 = re.compile(r'(\w+): (\d+)')
+
+    aunts = s.strip().split("\n")
+    aunt_1 = 0
+    aunt_2 = 0
+
+    for aunt in aunts:
+
+        m = r1.match(aunt)
+        correct_1 = True
+        correct_2 = True
+
+        for k, v in r2.findall(m.group(2)):
+            if sue[k] != int(v):
+                correct_1 = False
+
+            if k in ("cats", "trees"):
+                if not int(v) > sue[k]:
+                    correct_2 = False
+            elif k in ("pomeranians", "goldfish"):
+                if not int(v) < sue[k]:
+                    correct_2 = False
+            elif int(v) != sue[k]:
+                correct_2 = False
+
+        if correct_1:
+            aunt_1 = int(m.group(1))
+        if correct_2:
+            aunt_2 = int(m.group(1))
+
+    printer.row(aunt_1)
+    printer.row(aunt_2)
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -541,3 +594,4 @@ solver("input/12.txt", day_12)
 solver("input/13.txt", day_13)
 solver("input/14.txt", day_14)
 solver("input/15.txt", day_15)
+solver("input/16.txt", day_16)
