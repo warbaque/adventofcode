@@ -575,6 +575,28 @@ def day_16(s):
 
 
 #===============================================================================
+# DAY 17
+
+def day_17(s):
+
+    containers = list(map(int, s.strip().split("\n")))
+    target = 150
+
+    counts = [1] + [0]*target
+    for cur_num in containers:
+        for next_num in range(target, cur_num-1, -1):
+            counts[next_num] += counts[next_num - cur_num]
+    printer.row(counts[target])
+
+    total = 0
+    for k in range(1, len(containers) + 1):
+        total = len([1 for c in itertools.combinations(containers, k) if sum(c) == target])
+        if total:
+            break
+    printer.row(total)
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -595,3 +617,4 @@ solver("input/13.txt", day_13)
 solver("input/14.txt", day_14)
 solver("input/15.txt", day_15)
 solver("input/16.txt", day_16)
+solver("input/17.txt", day_17)
