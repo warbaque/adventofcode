@@ -597,6 +597,49 @@ def day_17(s):
 
 
 #===============================================================================
+# DAY 18
+
+def day_18(s):
+
+    light_rows = s.strip().split('\n')
+
+    def memoize(f):
+        class memodict(dict):
+            def __missing__(self, key):
+                self[key] = ret = f(key)
+                return ret
+        return memodict().__getitem__
+
+    @memoize
+    def adj(coord):
+        x, y = coord
+        return [(_x, _y) for _x in (x-1, x, x+1) for _y in (y-1, y, y+1)
+                if (_x,_y) != (x, y) and 0 <= _x < 100 and 0 <= _y < 100]
+
+    def lights(broken=False):
+
+        lights = {(x,y) for y, row in enumerate(light_rows)
+                  for x, c in enumerate(row) if c == '#'}
+        corners = {(0,0), (0,99), (99,0), (99,99)}
+        if broken: lights = corners | lights
+
+        def neighbours(x, y):
+            return sum((_x,_y) in lights for _x,_y in adj((x,y)))
+
+        for _ in range(100):
+            lights = {(x,y) for x in range(100) for y in range(100)
+                     if (x,y) in lights and neighbours(x,y) in (2, 3)
+                     or (x,y) not in lights and neighbours(x,y) == 3}
+            if broken: lights = corners | lights
+
+        return len(lights)
+
+
+    printer.row(lights())
+    printer.row(lights(broken=True))
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -618,3 +661,4 @@ solver("input/14.txt", day_14)
 solver("input/15.txt", day_15)
 solver("input/16.txt", day_16)
 solver("input/17.txt", day_17)
+solver("input/18.txt", day_18)
