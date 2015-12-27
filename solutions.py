@@ -640,6 +640,35 @@ def day_18(s):
 
 
 #===============================================================================
+# DAY 19
+
+def day_19(s):
+
+    reps, molecule = s.strip().split('\n\n')
+    reps = re.findall(r'(\w+) => (\w+)', s)
+    atoms = re.findall(r'([A-Z][a-z]*)', molecule)
+
+    S = set()
+    for element, rep in reps:
+        for i in (i for i, atom in enumerate(atoms) if atom == element):
+            y = atoms[:]
+            y[i] = rep
+            S.add(''.join(y))
+
+    printer.row(len(S))
+
+    '''
+    PART 2 - replacement rules
+    a => b c                    +1
+    a => b Rn c Ar              +1 (+Rn +Ar)
+    a => b Rn c Y d Ar          +1 (+Rn +Ar) (+1Y +1)
+    a => b Rn c Y d Y e Ar      +1 (+Rn +Ar) (+2Y +2)
+    '''
+    n_reps = len(atoms) - atoms.count('Rn') - atoms.count('Ar') - 2*atoms.count('Y') - 1
+    printer.row(n_reps)
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -662,3 +691,4 @@ solver("input/15.txt", day_15)
 solver("input/16.txt", day_16)
 solver("input/17.txt", day_17)
 solver("input/18.txt", day_18)
+solver("input/19.txt", day_19)
