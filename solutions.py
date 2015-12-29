@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import re
 import json
+from math import sqrt, exp, log, ceil
 
 
 #===============================================================================
@@ -669,6 +670,54 @@ def day_19(s):
 
 
 #===============================================================================
+# DAY 20
+
+def day_20(s):
+
+    presents = int(s)
+
+    def robins_inequality(n):
+        return exp(0.57721566490153286060651209008240243104215933593992)*n*log(log(n))
+
+    def house(lo, hi, target, *, part=1):
+
+        houses = [i for i in range(lo, hi, 1)]
+        end    = len(houses)
+        visits = [0]*end
+
+        for i in range(houses[-1], 1, -1):
+            start = i*ceil(houses[0]/i)-houses[0]
+            if part == 2:
+                end = min(end, 50*i - houses[0])
+            for j in range(start, end, i):
+                visits[j] += i
+
+        return next((houses[0]+i for i, v in enumerate(visits) if v >= target), None)
+
+    def bsearch(lo, hi):
+        while lo < hi:
+            mid = (lo+hi)//2
+            midval = robins_inequality(mid)
+            if midval < target:
+                lo = mid+1
+            elif midval > target:
+                hi = mid
+        return lo
+
+    target = presents // 10
+    lo = bsearch(5040, target)
+    hi = int(lo*1.1)
+    house_1 = house(lo, hi, target)
+    printer.row(house_1)
+
+    target = presents // 11
+    lo = house_1
+    hi = int(lo*1.1)
+    house_2 = house(lo, hi, target, part=2)
+    printer.row(house_2)
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -692,3 +741,4 @@ solver("input/16.txt", day_16)
 solver("input/17.txt", day_17)
 solver("input/18.txt", day_18)
 solver("input/19.txt", day_19)
+solver("input/20.txt", day_20)
