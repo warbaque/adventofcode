@@ -993,6 +993,22 @@ def day_24(s):
 
 
 #===============================================================================
+# DAY 25
+
+def day_25(s):
+
+    row, col = map(int, re.match(r'.* row (\d+), column (\d+).', s).groups())
+
+    iterations = (row-1)*(col-1) + sum(range(row)) + sum(range(col+1))
+
+    first = 20151125
+    code = first * pow(252533, iterations-1, 33554393) % 33554393
+    printer.row(code)
+
+    printer.row('DONE')
+
+
+ #===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -1021,3 +1037,4 @@ solver("input/21.txt", day_21)
 solver("input/22.txt", day_22)
 solver("input/23.txt", day_23)
 solver("input/24.txt", day_24)
+solver("input/25.txt", day_25)
