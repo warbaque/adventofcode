@@ -1,5 +1,7 @@
 import hashlib
 import itertools
+import functools
+import operator
 import re
 import json
 from math import sqrt, exp, log, ceil
@@ -10,13 +12,13 @@ from math import sqrt, exp, log, ceil
 class printer():
     day = ""
     def hline(self):
-        print("+-----+------------+")
+        print("+-----+-------------+")
     def header(self):
         self.hline()
-        print("| {:>3s} | {:>10s} |".format("DAY", "results"))
+        print("| {:>3s} | {:>11s} |".format("DAY", "results"))
         self.hline()
     def row(self, solution):
-        print("| {:>3s} | {:>10s} |".format(self.day, str(solution)))
+        print("| {:>3s} | {:>11s} |".format(self.day, str(solution)))
         self.day = ""
 
 printer = printer()
@@ -962,6 +964,34 @@ def day_23(s):
     reg = {'a':1, 'b':0, 'offset':1}
     run()
 
+
+#===============================================================================
+# DAY 24
+
+def day_24(s):
+
+    nums = list(map(int, s.strip().split("\n")))
+
+    groups = 3
+    balanced_weight = sum(nums)/groups
+
+    def hasSum(lst, sub):
+        for y in range(1,len(lst)):
+            for x in (z for z in itertools.combinations(lst, y) if sum(z) == balanced_weight):
+                if sub == 2:
+                    return True
+                elif sub < groups:
+                    return hasSum(list(set(lst) - set(x)), sub - 1)
+                elif hasSum(list(set(lst) - set(x)), sub - 1):
+                    return functools.reduce(operator.mul, x, 1)
+
+    printer.row(hasSum(nums, groups))
+
+    groups = 4
+    balanced_weight = sum(nums)/groups
+    printer.row(hasSum(nums, groups))
+
+
 #===============================================================================
 
 DISABLE_TOO_SLOW = False
@@ -990,3 +1020,4 @@ solver("input/20.txt", day_20)
 solver("input/21.txt", day_21)
 solver("input/22.txt", day_22)
 solver("input/23.txt", day_23)
+solver("input/24.txt", day_24)
