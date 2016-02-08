@@ -918,6 +918,51 @@ def day_22(s):
 
 
 #===============================================================================
+# DAY 23
+
+def day_23(s):
+
+    instructions = s.strip().split("\n")
+
+    def hlf(register): reg[register] //= 2
+    def tpl(register): reg[register] *= 3
+    def inc(register): reg[register] += 1
+    def jmp(offset):
+        reg['offset'] = int(offset)
+    def jie(register, offset):
+        if reg[register] % 2 == 0:
+            jmp(offset)
+    def jio(register, offset):
+        if reg[register] == 1:
+            jmp(offset)
+
+    regex = [
+        (hlf, re.compile(r'hlf (\S+)')),
+        (tpl, re.compile(r'tpl (\S+)')),
+        (inc, re.compile(r'inc (\S+)')),
+        (jmp, re.compile(r'jmp ([\+-]\d+)')),
+        (jie, re.compile(r'jie (\S+), ([\+-]\d+)')),
+        (jio, re.compile(r'jio (\S+), ([\+-]\d+)'))
+    ]
+
+    def run():
+        i = 0
+        while i >= 0 and i < len(instructions):
+            reg['offset'] = 1
+            for func, r in regex:
+                m = r.match(instructions[i])
+                if m:
+                    func(*m.groups())
+                    break
+            i += reg['offset']
+        printer.row(reg['b'])
+
+    reg = {'a':0, 'b':0, 'offset':1}
+    run()
+    reg = {'a':1, 'b':0, 'offset':1}
+    run()
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -944,3 +989,4 @@ solver("input/19.txt", day_19)
 solver("input/20.txt", day_20)
 solver("input/21.txt", day_21)
 solver("input/22.txt", day_22)
+solver("input/23.txt", day_23)
