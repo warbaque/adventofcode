@@ -4,7 +4,6 @@ import re
 import json
 from math import sqrt, exp, log, ceil
 
-
 #===============================================================================
 # HELPERS
 
@@ -833,6 +832,92 @@ def day_21(s):
 
 
 #===============================================================================
+# DAY 22
+
+def day_22(s):
+
+    bhp, bdmg = map(int, re.match(r'Hit Points: (\d+)\W*Damage: (\d+)', s).groups())
+
+    def sim(actions, part):
+        boss_hp, boss_dmg = bhp, bdmg
+        hp, mana, armor = 50, 500, 0
+        turn, turn_c = 0, 0
+        mana_spent = 0
+        poison_left, shield_left, recharge_left = 0, 0, 0
+        my_turn = True
+        spell_cost = {'M': 53, 'D': 73, 'S': 113, 'P': 173, 'R': 229}
+
+        while True:
+            if len(actions)-1 < turn_c:
+                print('out of moves')
+                return 0
+            if poison_left:
+                poison_left = max(poison_left - 1, 0)
+                boss_hp -= 3
+            if shield_left:
+                shield_left = max(shield_left - 1, 0)
+                armor = 7
+            else:
+                armor = 0
+            if recharge_left:
+                recharge_left = max(recharge_left - 1, 0)
+                mana += 101
+            if my_turn:
+                if part == 2:
+                    hp -= 1
+                    if hp <= 0:
+                        return 0
+                action = actions[turn_c]
+                mana -= spell_cost[action]
+                mana_spent += spell_cost[action]
+                if action == 'M':
+                    boss_hp -= 4
+                elif action == 'D':
+                    boss_hp -= 2
+                    hp += 2
+                elif action == 'S':
+                    if shield_left:
+                        return 0
+                    shield_left = 6
+                elif action == 'P':
+                    if poison_left:
+                        return 0
+                    poison_left = 6
+                elif action == 'R':
+                    if recharge_left:
+                        return 0
+                    recharge_left = 5
+                if mana < 0:
+                    return 0
+            if boss_hp <= 0:
+                return mana_spent
+            if not my_turn:
+                hp -= max(boss_dmg - armor, 1)
+                if hp <= 0:
+                    return 0
+            if my_turn:
+                turn_c += 1
+            my_turn ^= True
+            turn += 1
+
+    def iterate_actions(pos):
+        actions[pos] = 'DSPRM'['MDSPR'.index(actions[pos])]
+        if actions[pos] == 'M':
+            if pos+1 <= len(actions):
+                iterate_actions(pos+1)
+
+    for part in (1, 2):
+        actions = ['M'] * 20
+        min_spent = float('inf')
+        for i in range(1000000):
+            result = sim(actions, part)
+            if result:
+                min_spent = min(result, min_spent)
+            iterate_actions(0)
+        printer.row(min_spent)
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -858,3 +943,4 @@ solver("input/18.txt", day_18)
 solver("input/19.txt", day_19)
 solver("input/20.txt", day_20)
 solver("input/21.txt", day_21)
+solver("input/22.txt", day_22)
