@@ -718,6 +718,121 @@ def day_20(s):
 
 
 #===============================================================================
+# DAY 21
+
+def day_21(s):
+
+    boss_hp, boss_dmg, boss_armor = map(int, re.match(r'Hit Points: (\d+)\W*Damage: (\d+)\W*Armor: (\d+)', s).groups())
+    player_hp    = 100
+    equipment    = {}
+    boss_total   = boss_hp*boss_dmg + player_hp*boss_armor
+
+    def item(cost, attack, defence):
+        return {
+            'cost' : cost,
+            'att'  : attack,
+            'def'  : defence,
+            'bonus': player_hp*attack + boss_hp*defence
+            }
+
+    weapons = [
+        item(  8, 4, 0),
+        item( 10, 5, 0),
+        item( 25, 6, 0),
+        item( 40, 7, 0),
+        item( 74, 8, 0)
+    ]
+    armours = [
+        item(  0, 0, 0),
+        item( 13, 0, 1),
+        item( 31, 0, 2),
+        item( 53, 0, 3),
+        item( 75, 0, 4),
+        item(102, 0, 5)
+    ]
+    rings = [
+        item(  0, 0, 0),
+        item( 25, 1, 0),
+        item( 50, 2, 0),
+        item(100, 3, 0),
+        item( 20, 0, 1),
+        item( 40, 0, 2),
+        item( 80, 0, 3)
+    ]
+
+
+    def equipment_total(stat):
+        weapon = weapons[equipment['weapon']]
+        armour = armours[equipment['armour']]
+        ring_1 = rings[equipment['ring_1']]
+        ring_2 = rings[equipment['ring_2']]
+        return weapon[stat] + armour[stat] + ring_1[stat] + ring_2[stat]
+
+
+    # Part 1 : win boss (equipment_total('bonus') >= boss_total) with minimum total cost
+
+    equipment['weapon'] = 0
+    equipment['armour'] = 0
+    equipment['ring_1'] = 0
+    equipment['ring_2'] = 0
+
+    def best_upgrade(items, slot, upgrade):
+
+        equipped = items[equipment[slot]]
+        for i, item in enumerate(items):
+            diff = item['bonus'] - equipped['bonus']
+            if diff > 0:
+                ratio = diff / (item['cost'] - equipped['cost'])
+                if ratio > upgrade['ratio']:
+                    upgrade['slot']  = slot
+                    upgrade['idx']   = i
+                    upgrade['ratio'] = ratio
+
+    while equipment_total('bonus') < boss_total:
+
+        upgrade = { 'slot':'', 'idx':-1, 'ratio':-1 }
+        best_upgrade(weapons, 'weapon', upgrade)
+        best_upgrade(armours, 'armour', upgrade)
+        best_upgrade(rings,   'ring_1', upgrade)
+        best_upgrade(rings,   'ring_2', upgrade)
+        equipment[upgrade['slot']] = upgrade['idx']
+
+    printer.row(equipment_total('cost'))
+
+
+    # Part 2 : lose to boss (equipment_total('bonus') < boss_total) with maximum total cost
+
+    equipment['weapon'] = 0
+    equipment['armour'] = 0
+    equipment['ring_1'] = 0
+    equipment['ring_2'] = 0
+
+    def worst_upgrade(items, slot, upgrade):
+
+        equipped = items[equipment[slot]]
+        for i, item in enumerate(items):
+            diff = item['bonus'] - equipped['bonus']
+            if diff > 0 and equipment_total('bonus') + diff < boss_total:
+                ratio = diff / (item['cost'] - equipped['cost'])
+                if ratio < upgrade['ratio']:
+                    upgrade['slot']  = slot
+                    upgrade['idx']   = i
+                    upgrade['ratio'] = ratio
+
+    while True:
+
+        upgrade = { 'slot':'', 'idx':-1, 'ratio':float('inf') }
+        worst_upgrade(weapons, 'weapon', upgrade)
+        worst_upgrade(armours, 'armour', upgrade)
+        worst_upgrade(rings,   'ring_1', upgrade)
+        worst_upgrade(rings,   'ring_2', upgrade)
+        if upgrade['idx'] < 0: break
+        equipment[upgrade['slot']] = upgrade['idx']
+
+    printer.row(equipment_total('cost'))
+
+
+#===============================================================================
 
 DISABLE_TOO_SLOW = False
 
@@ -742,3 +857,4 @@ solver("input/17.txt", day_17)
 solver("input/18.txt", day_18)
 solver("input/19.txt", day_19)
 solver("input/20.txt", day_20)
+solver("input/21.txt", day_21)
